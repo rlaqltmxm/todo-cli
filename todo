@@ -1,0 +1,58 @@
+#!/bin/sh
+
+TODODIR="/usr/local/share/todo"
+
+add_todo() {
+    COUNT=0
+    while [ -f "${TODODIR}/${COUNT}" ]
+        do
+            ((COUNT++))
+        done
+    vim "${TODODIR}/${COUNT}"
+    RET=$?
+    if [ $RET -eq "0" ]; then
+        echo "New todo added. id: ${COUNT}"
+    else echo "Addition failed. error code: ${RET}"
+    fi
+}
+
+get_list() {
+    if [ -s $TODODIR ]; then
+        echo "$(tput bold)id.\tcontents$(tput sgr0)"
+        for entry in $(ls -tr $TODODIR); do
+            if [ $entry != "*" ]; then
+                echo "$entry\t$(cat "${TODODIR}/${entry}")"
+            fi
+        done
+    else
+        echo "Nothing to do."
+    fi
+}
+
+complete_todo() {
+    TARGET="$1"
+    if [ -f "$1" ]; then
+        rm "${TODODIR}/${TARGET}"
+        RET=$?
+        if [ $RET == "0" ]; then
+            echo "Finished a todo."
+        else
+            echo "Deletion failed. error code: ${RET}"
+        fi
+    else echo "File not exists."
+    fi
+}
+
+COMMAND=$1
+if [ ! -d "$TODODIR" ]; then
+    mkdir $TODODIR
+fi
+
+case $COMMAND in
+    add)
+        add_todo ;;
+    list)
+        get_list ;;
+    done)
+        complete_todo $2 ;;
+esac
