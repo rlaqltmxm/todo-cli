@@ -24,7 +24,10 @@ get_list() {
             CONTENT="$(cat "${TODODIR}/${entry}")\t"
             if [ ${#CONTENT} -gt 16 ]; then
                 CONTENT="${CONTENT::16}..."
+            elif [ ${#CONTENT} -lt 8 ]; then
+                CONTENT="$CONTENT\t"
             fi
+
             if [ $entry != "*" ]; then
                 echo "$entry\t$CONTENT\t$(date -r "$TODODIR/$entry" "+%m-%d-%Y %H:%M:%S")"
             fi
@@ -35,9 +38,12 @@ get_list() {
 }
 
 complete_todo() {
-    TARGET="$1"
-    if [ -f "$TODODIR/$1" ]; then
-        rm "${TODODIR}/${TARGET}"
+
+    TARGET=$(get_list | fzf --reverse)
+    INDEX=$(echo `expr "$TARGET" : '^\([0-9]*\)'`)
+
+    if [ -f "$TODODIR/${INDEX}" ]; then
+        rm "${TODODIR}/${INDEX}"
         RET=$?
         if [ $RET == "0" ]; then
             echo "Finished a todo."
@@ -46,6 +52,11 @@ complete_todo() {
         fi
     else echo "File not exists."
     fi
+}
+
+clear_repo() {
+    rm -rf $TODODIR && mkdir $TODODIR
+    echo "All todo is done."
 }
 
 COMMAND=$1
@@ -59,5 +70,7 @@ case $COMMAND in
     list)
         get_list ;;
     done)
-        complete_todo $2 ;;
+        complete_todo ;;
+    clear)
+        clear_repo ;;
 esac
