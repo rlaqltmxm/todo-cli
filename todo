@@ -18,10 +18,10 @@ add_todo() {
 
 get_list() {
     if [ -s $TODODIR ]; then
-        echo "$(tput bold)id.\tcontents$(tput sgr0)"
+        echo "$(tput bold)ID\tContents\tDate$(tput sgr0)"
         for entry in $(ls -tr $TODODIR); do
             if [ $entry != "*" ]; then
-                echo "$entry\t$(cat "${TODODIR}/${entry}")"
+                echo "$entry\t$(cat "${TODODIR}/${entry}")\t$(date -r "$TODODIR/$entry" "+%m-%d-%Y %H:%M:%S")"
             fi
         done
     else
@@ -31,7 +31,7 @@ get_list() {
 
 complete_todo() {
     TARGET="$1"
-    if [ -f "$1" ]; then
+    if [ -f "$TODODIR/$1" ]; then
         rm "${TODODIR}/${TARGET}"
         RET=$?
         if [ $RET == "0" ]; then
