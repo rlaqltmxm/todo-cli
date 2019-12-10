@@ -18,10 +18,15 @@ add_todo() {
 
 get_list() {
     if [ -s $TODODIR ]; then
-        echo "$(tput bold)ID\tContents\tDate$(tput sgr0)"
+        echo "$(tput bold)ID\tContents\t\tDate$(tput sgr0)"
         for entry in $(ls -tr $TODODIR); do
+
+            CONTENT="$(cat "${TODODIR}/${entry}")\t"
+            if [ ${#CONTENT} -gt 16 ]; then
+                CONTENT="${CONTENT::16}..."
+            fi
             if [ $entry != "*" ]; then
-                echo "$entry\t$(cat "${TODODIR}/${entry}")\t$(date -r "$TODODIR/$entry" "+%m-%d-%Y %H:%M:%S")"
+                echo "$entry\t$CONTENT\t$(date -r "$TODODIR/$entry" "+%m-%d-%Y %H:%M:%S")"
             fi
         done
     else
