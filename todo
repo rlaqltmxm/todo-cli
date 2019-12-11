@@ -18,7 +18,11 @@ add_todo() {
 
 get_list() {
     if [ -s $TODODIR ]; then
-        echo "$(tput bold)ID\tContents\t\tDate$(tput sgr0)"
+
+        if [ "$1" != "donee" ]; then
+            echo -e "\033[1mID\tContents\t\tDate\033[0m"
+        fi
+
         for entry in $(ls -tr $TODODIR); do
 
             CONTENT="$(cat "${TODODIR}/${entry}")\t"
@@ -39,7 +43,7 @@ get_list() {
 
 complete_todo() {
 
-    TARGET=$(get_list | fzf --reverse)
+    TARGET=$(get_list donee | fzf --reverse)
     INDEX=$(echo `expr "$TARGET" : '^\([0-9]*\)'`)
 
     if [ -f "$TODODIR/${INDEX}" ]; then
