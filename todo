@@ -20,7 +20,7 @@ get_list() {
     if [ -s $TODODIR ]; then
 
         if [ "$1" != "donee" ]; then
-            echo -e "\033[1mID\tContents\t\tDate\033[0m"
+            echo "\033[1mID\tContents\t\tDate\033[0m"
         fi
 
         for entry in $(ls -tr $TODODIR); do
