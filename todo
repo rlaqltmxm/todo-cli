@@ -4,13 +4,16 @@ TODODIR="/usr/local/share/todo"
 
 add_todo() {
     COUNT=0
-    while [ -f "${TODODIR}/${COUNT}" ]
-        do
-            ((COUNT++))
-        done
+    while [ -f "${TODODIR}/${COUNT}" ]; do
+        ((COUNT++))
+    done
+
     vim "${TODODIR}/${COUNT}"
     RET=$?
-    if [ $RET -eq "0" ]; then
+
+    if [ ! -f "${TODODIR}/${COUNT}" ]; then
+        echo "Addition failed: empty contents."
+    elif [ $RET -eq "0" ]; then
         echo "New todo added. id: ${COUNT}"
     else echo "Addition failed. error code: ${RET}"
     fi
@@ -18,7 +21,6 @@ add_todo() {
 
 get_list() {
     if [ -s $TODODIR ]; then
-
         if [ "$1" != "donee" ]; then
             echo "\033[1mID\tContents\t\tDate\033[0m"
         fi
@@ -42,13 +44,12 @@ get_list() {
 }
 
 complete_todo() {
-
     TARGET=$(get_list donee | fzf --reverse)
     INDEX=$(echo `expr "$TARGET" : '^\([0-9]*\)'`)
-
     if [ -f "$TODODIR/${INDEX}" ]; then
         rm "${TODODIR}/${INDEX}"
         RET=$?
+
         if [ $RET == "0" ]; then
             echo "Finished a todo."
         else
